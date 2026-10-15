@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Faith & Family Miles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0fdfa; /* Light teal background */
+            overscroll-behavior-y: none; /* Prevents pull-to-refresh on mobile */
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 400px;
+            height: 60vh;
+            max-height: 500px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s ease-out, opacity 0.3s ease-out;
+            transform-style: preserve-3d;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .card.slide-out {
+            transform: translateX(-120%) rotate(-10deg);
+            opacity: 0;
+        }
+
+        .card.slide-in {
+            animation: slideIn 0.4s forwards;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateX(120%) rotate(10deg); opacity: 0; }
+            100% { transform: translateX(0) rotate(0); opacity: 1; }
+        }
+
+        /* Category Themes */
+        .theme-silly { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color: #4a044e; }
+        .theme-imagination { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); color: #082f49; }
+        .theme-family { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); color: #14532d; }
+        .theme-faith { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); color: #312e81; }
+
+        .btn-press:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col items-center justify-center relative">
+
+    <!-- HOME SCREEN -->
+    <div id="home-screen" class="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-teal-400 to-blue-500 absolute inset-0 z-20 transition-opacity duration-500">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+            <h1 class="text-4xl font-black text-teal-600 mb-2 leading-tight">Faith & Family<br>Miles</h1>
+            <p class="text-gray-500 mb-6 font-bold">Road Trip Conversation Game</p>
+            
+            <div class="text-left mb-6">
+                <h2 class="font-bold text-gray-700 mb-3 text-lg">Select Categories:</h2>
+                <label class="flex items-center space-x-3 mb-2 p-2 rounded-lg hover:bg-gray-50 active:bg-gray-100">
+                    <input type="checkbox" id="cat-silly" value="silly" checked class="w-6 h-6 text-teal-600 rounded focus:ring-teal-500">
+                    <span class="text-lg text-gray-800">🤪 Silly & Fun</span>
+                </label>
+                <label class="flex items-center space-x-3 mb-2 p-2 rounded-lg hover:bg-gray-50 active:bg-gray-100">
+                    <input type="checkbox" id="cat-imagination" value="imagination" checked class="w-6 h-6 text-teal-600 rounded focus:ring-teal-500">
+                    <span class="text-lg text-gray-800">🚀 Imagination</span>
+                </label>
+                <label class="flex items-center space-x-3 mb-2 p-2 rounded-lg hover:bg-gray-50 active:bg-gray-100">
+                    <input type="checkbox" id="cat-family" value="family" checked class="w-6 h-6 text-teal-600 rounded focus:ring-teal-500">
+                    <span class="text-lg text-gray-800">🏡 Family Memories</span>
+                </label>
+                <label class="flex items-center space-x-3 mb-2 p-2 rounded-lg hover:bg-gray-50 active:bg-gray-100">
+                    <input type="checkbox" id="cat-faith" value="faith" checked class="w-6 h-6 text-teal-600 rounded focus:ring-teal-500">
+                    <span class="text-lg text-gray-800">✝️ Faith & Heart</span>
+                </label>
+            </div>
+
+            <button onclick="startGame()" class="btn-press w-full bg-teal-500 text-white font-bold text-xl py-4 rounded-xl shadow-lg hover:bg-teal-600 transition-colors">
+                Start Journey
+            </button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="w-full h-full flex flex-col items-center justify-between p-6 opacity-0 pointer-events-none absolute inset-0 z-10 transition-opacity duration-500">
+        
+        <!-- Header -->
+        <div class="w-full flex justify-between items-center max-w-md pt-4">
+            <button onclick="returnToMenu()" class="btn-press bg-white text-gray-600 px-4 py-2 rounded-full font-bold shadow-md text-sm">
+                ← Menu
+            </button>
+            <div id="card-counter" class="bg-white text-gray-600 px-4 py-2 rounded-full font-bold shadow-md text-sm">
+                0 / 0
+            </div>
+        </div>
+
+        <!-- Card Area -->
+        <div class="card-container flex items-center justify-center flex-grow py-8 w-full cursor-pointer" onclick="nextCard()">
+            <div id="active-card" class="card theme-silly">
+                <div id="card-icon" class="text-5xl mb-4">🤪</div>
+                <div id="card-category" class="font-bold uppercase tracking-widest text-sm mb-4 opacity-80">Silly & Fun</div>
+                <div id="card-text" class="text-2xl md:text-3xl font-bold leading-tight">Loading question...</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="w-full max-w-md pb-8">
+            <p class="text-center text-gray-500 mb-4 font-bold text-sm">Tap the card or button to draw next</p>
+            <button onclick="nextCard()" class="btn-press w-full bg-white text-teal-600 border-2 border-teal-500 font-black text-2xl py-5 rounded-2xl shadow-[0_8px_0_rgb(20,184,166)] active:shadow-[0_0px_0_rgb(20,184,166)] active:translate-y-2 transition-all">
+                Next Card
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const allCards = [
+            // --- SILLY & FUN (50 Questions) ---
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have spaghetti for hair or sweat maple syrup?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you had to eat one food for the rest of your life, but it had to be a vegetable, what would it be?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather fight one horse-sized duck or 100 duck-sized horses?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If dogs could talk, what do you think our dog (or a neighbor\'s dog) would say about us?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have to hop everywhere like a kangaroo or crawl everywhere like a crab?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you could shrink down to the size of an ant for one day, what is the first thing you would do?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have a pet dinosaur or a pet dragon? What would you name it?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What is the grossest thing you have ever tasted?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather your only mode of transportation be a donkey or a hot air balloon?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you had to replace your hands with objects for a day, what objects would you choose?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather sneeze glitter or burp bubbles?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you were a mad scientist, what two animals would you combine to make a new super-animal?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather always have to sing instead of speaking, or dance everywhere instead of walking?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What is the funniest face you can make? (Everyone has to show theirs!)' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have no eyebrows or no eyelashes?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you had a remote control that worked on people, what buttons would it have?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather live in a house made of cheese or a house made of chocolate?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you could make a rule that everyone in the world had to follow for one day, what would it be?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather be able to talk to bugs or understand what babies are saying?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What is the weirdest smell that you actually really like?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have feet for hands or hands for feet?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If aliens visited Earth and you had to give them one thing to show them what humans are like, what would it be?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather only be able to whisper or only be able to shout?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What would you do if you woke up tomorrow and you were the parents and we were the kids?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have a nose that glows red like Rudolph or ears that point like an elf?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you could invent a new flavor of ice cream, what would be in it?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have to wear a clown nose every day or giant clown shoes every day?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What is the silliest word you can think of?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather take a bath in mashed potatoes or baked beans?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If your life was a cartoon, what would your catchphrase be?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have a purple nose or green ears?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you could only eat foods that start with the letter "C" for a week, what would you eat?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have an elephant trunk or a giraffe neck?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What is the funniest joke you know by heart?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather be followed around by a marching band or a guy with a tuba?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you had to rename yourself right now, what silly name would you choose?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather wear clothes that are always two sizes too big or two sizes too small?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What would be the worst thing to fill a piñata with?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have to eat a stick of butter or drink a bottle of hot sauce?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If animals played sports, which animal would be the best basketball player?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have a monkey tail or monkey feet?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What is the funniest sound you can make with your mouth?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have to wear wet socks all day or have a popcorn kernel stuck in your teeth all day?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If clouds were made of food, what food would you want them to be?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have to sleep in a bathtub or on the kitchen counter?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What is the most ridiculous thing you have ever believed was true?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have a built-in siren instead of a voice or a built-in horn instead of a sneeze?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'If you were a professional wrestler, what would your entrance theme song be?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'Would you rather have hair made of snakes (like Medusa) or hair made of french fries?' },
+            { cat: 'silly', icon: '🤪', label: 'Silly & Fun', text: 'What’s the funniest thing you’ve ever seen an animal do?' },
+
+            // --- IMAGINATION & ADVENTURE (50 Questions) ---
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you had a time machine, would you go to the past or the future? Where exactly?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could have any superpower, but only for 24 hours, what would you choose?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were the author of a famous book series, what would it be about?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could design your ultimate treehouse, what crazy features would it have?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'Imagine you are exploring space. What name would you give the first planet you discover?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If our family formed a superhero team, what would our team name be and what would our powers be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could instantly be an expert at any musical instrument, which one would it be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you had an unlimited budget to build a Lego creation, what would you build?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could breathe underwater, what would you want to go look at first?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were a spy, what would your secret codename be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could talk to one species of animal, which one would it be and what would you ask them?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could live inside any movie or video game, which one would it be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you found a magic lamp, what would your three wishes be? (No wishing for more wishes!)' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could build a robot to do one of your chores forever, which chore would it be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were stranded on a desert island and could only have three items, what would they be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could invent a new holiday, what would we celebrate and how?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you had to survive a zombie apocalypse using only items in our garage, what would your weapon be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could make toys come to life like in Toy Story, which of your toys would be the leader?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could travel anywhere in the world right now, where would we go?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were the principal of your school for a day, what rules would you change?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could be any age for a whole week, what age would you choose and why?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could teleport, where is the first place you would go?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you discovered a hidden room in our house, what would you want to be inside it?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you had a pet alien, what do you think it would eat?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could step into any painting and explore it, what kind of painting would it be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were a professional athlete, what sport would you play and what team would you be on?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could fly, would you rather fly fast like a jet or hover like a hummingbird?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you had to describe colors to someone who couldn’t see, how would you describe "red"?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could create a new type of vehicle, how would it move?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were a king for a day, what is the first decree you would make?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could shrink objects and carry them in your pocket, what would you bring with you everywhere?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could transform into any vehicle, what would you be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were opening a restaurant, what kind of food would you serve?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you found a treasure map in the backyard, who would you take with you on the adventure?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you had a jetpack, what would you use it for?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could control the weather, what kind of weather would you make it today?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could be an apprentice to anyone in history, who would it be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you had to live in the wilderness for a month, what survival skill do you think you’d be best at?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could only wear one outfit for the rest of your life, what would it look like?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could grow any plant in the world in your bedroom, what would it be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could be the world champion at any board game, which one would it be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could make a movie about your life, who would play you?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were given a magical compass, what would it point to?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could replace the grass on your lawn with anything else, what would it be?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you had an endless supply of cardboard boxes, what would you build?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could be a contestant on any game show, which one would you choose?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could breathe fire, what would you use it for?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you were invisible for a day, what harmless pranks would you pull?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could only travel by swinging on vines like Tarzan, where would you go first?' },
+            { cat: 'imagination', icon: '🚀', label: 'Imagination', text: 'If you could turn any drawing you make into a real, 3D object, what is the first thing you’d draw?' },
+
+            // --- FAMILY & MEMORIES (50 Questions) ---
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is your absolute favorite memory from a family vacation?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is a family tradition we have that you hope to do with your kids one day?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What do you think is the funniest thing that has ever happened to our family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If you had to describe our family in three words, what would they be?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is something you think Mom is really good at?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is something you think Dad is really good at?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is a meal we make at home that is your absolute favorite?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'When is a time you felt really proud to be part of our family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is the best gift you’ve ever received from someone in the family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If our family had a theme song that played when we walked into a room, what would it be?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is something you want to learn how to do from Mom or Dad?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is the most adventurous thing our family has done together?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If we could start a new family tradition today, what should it be?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What do you love most about our home?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'When was a time you were scared but someone in the family helped you feel better?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is the silliest argument we have ever had?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If we were stuck in an elevator for 5 hours, how would we pass the time?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is something nice someone in the family did for you recently?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'Who in the family is the most likely to survive in the wild, and why?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is a rule we have in our house that you think is actually a really good rule?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is your favorite picture of our family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If we opened a family business, what would we sell or do?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is a skill that everyone in our family shares?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is the best surprise our family has ever had?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'When was a time we worked really well together as a team?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is an inside joke that only our family understands?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What do you think our pets think about our family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What was your favorite age to be so far, and why?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is one thing you think we should do more often as a family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'Who gives the best hugs in the family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is the most embarrassing thing your parents do?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If you had to trade chores with Mom or Dad for a week, which chore would you pick?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is a story about when you were a baby that you love hearing?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is the hardest we have ever laughed together?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If we could adopt any animal as a family pet right now, what would it be?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is your favorite thing to do on a Saturday morning with the family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is a movie we always quote as a family?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is something you appreciate about how Mom and Dad raise you?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'When is a time you made a mistake and our family helped you fix it?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is your favorite game to play on family game night?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If our family lived in a different time period, when would you want it to be?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is the most chaotic car ride we have ever had?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is a holiday memory that always makes you smile?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is something you think our family could improve on?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If we had a family flag, what colors and symbols would be on it?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is a piece of advice Mom or Dad gave you that you actually use?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'When is a time you were brave because your family was cheering you on?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What is your favorite room in our house and why?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'If we were stuck on a desert island, what would each person’s "job" be?' },
+            { cat: 'family', icon: '🏡', label: 'Family Memories', text: 'What makes you most thankful for our family today?' },
+
+            // --- FAITH & HEART (50 Questions) ---
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'If you could have lunch with any person from the Bible (besides Jesus), who would you choose?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is your favorite story or miracle from the Bible and why?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'When is a time you felt God helped you when you were scared or worried?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'If you could ask God one question right now, what would you ask Him?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'Which Fruit of the Spirit (love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, self-control) do you want to grow in the most?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How do you think God shows His love for us in everyday things?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is a prayer you prayed that you saw God answer?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'If Jesus spent the day at your school with you, what do you think He would do?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What does "faith" mean to you in your own words?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is a worship song that always makes you feel happy or peaceful?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How can our family do a better job of serving others this month?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is something God created in nature that absolutely amazes you?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'When is it hardest for you to forgive someone?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'Who is someone in your life that is a really good example of a Christian to you?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What do you think Heaven will be like?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'Why do you think God gave us the Ten Commandments?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'If you were David facing Goliath, what would you be thinking?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is something you are struggling with right now that we can pray for?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How do you know when God is speaking to you or guiding you?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What do you think is the most important lesson Jesus taught?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'If you had to explain the Gospel to a friend in one minute, what would you say?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is a Bible verse that you have memorized or really like?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How can you show kindness to someone at school who is hard to get along with?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'Why is it important to tell the truth, even when it might get you in trouble?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'When you are having a bad day, what reminds you that God loves you?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'Who is an unsung hero in the Bible that you admire?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How does it feel knowing that God knew you before you were even born?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is one thing you can do this week to show love to your parents?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is one thing you can do this week to show love to a sibling or friend?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How do you think reading the Bible helps us in our daily lives?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'If you were an animal on Noah’s Ark, which one would you be and how would you handle the trip?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What do you think is the bravest thing anyone in the Bible did?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How does going to church help our family?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is something you are incredibly grateful to God for today?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'When is a time you felt tempted to do the wrong thing, but chose the right thing?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'Why do you think God allows us to go through hard times?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What does it mean to "love your neighbor as yourself"?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'If you were one of the disciples watching Jesus calm the storm, how would you have reacted?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How can we show thankfulness to God even when we don’t get what we want?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What do you think makes God smile?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What does "grace" mean to you?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'Why is it important to pray for people we don’t even know?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is a talent or gift God has given you, and how can you use it for Him?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What do you think Peter felt like when he walked on water?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How can we keep our focus on Jesus when life gets really busy?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What does the cross mean to you?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'If you were alive when Jesus was born, what gift would you have brought Him?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'What is a promise from God that brings you comfort?' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'Let’s each say a quick prayer thanking God for something specific right now.' },
+            { cat: 'faith', icon: '✝️', label: 'Faith & Heart', text: 'How does knowing Jesus change the way you treat other people?' }
+        ];
+
+        let activeDeck = [];
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        function startGame() {
+            const useSilly = document.getElementById('cat-silly').checked;
+            const useImagination = document.getElementById('cat-imagination').checked;
+            const useFamily = document.getElementById('cat-family').checked;
+            const useFaith = document.getElementById('cat-faith').checked;
+
+            activeDeck = allCards.filter(card => {
+                if (card.cat === 'silly' && useSilly) return true;
+                if (card.cat === 'imagination' && useImagination) return true;
+                if (card.cat === 'family' && useFamily) return true;
+                if (card.cat === 'faith' && useFaith) return true;
+                return false;
+            });
+
+            if (activeDeck.length === 0) {
+                alert("Please select at least one category!");
+                return;
+            }
+
+            // Shuffle deck
+            for (let i = activeDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeDeck[i], activeDeck[j]] = [activeDeck[j], activeDeck[i]];
+            }
+
+            currentIndex = 0;
+            
+            // Transition UI
+            document.getElementById('home-screen').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('game-screen').classList.remove('opacity-0', 'pointer-events-none');
+            
+            renderCard(activeDeck[currentIndex]);
+            updateCounter();
+        }
+
+        function updateCounter() {
+            document.getElementById('card-counter').innerText = `${currentIndex + 1} / ${activeDeck.length}`;
+        }
+
+        function nextCard() {
+            if (isAnimating) return;
+            if (currentIndex >= activeDeck.length - 1) {
+                // Game over, reshuffle or back to menu
+                if(confirm("You've reached the end of the deck! Reshuffle and keep playing?")) {
+                    startGame();
+                } else {
+                    returnToMenu();
+                }
+                return;
+            }
+
+            isAnimating = true;
+            const cardEl = document.getElementById('active-card');
+            
+            // Slide out
+            cardEl.classList.add('slide-out');
+            
+            setTimeout(() => {
+                currentIndex++;
+                renderCard(activeDeck[currentIndex]);
+                updateCounter();
+                
+                // Reset and slide in
+                cardEl.classList.remove('slide-out');
+                cardEl.classList.add('slide-in');
+                
+                setTimeout(() => {
+                    cardEl.classList.remove('slide-in');
+                    isAnimating = false;
+                }, 400); // Wait for slide in animation to finish
+            }, 400); // Wait for slide out animation to finish
+        }
+
+        function renderCard(card) {
+            const cardEl = document.getElementById('active-card');
+            const iconEl = document.getElementById('card-icon');
+            const catEl = document.getElementById('card-category');
+            const textEl = document.getElementById('card-text');
+
+            // Reset themes
+            cardEl.className = 'card'; 
+            cardEl.classList.add(`theme-${card.cat}`);
+
+            iconEl.innerText = card.icon;
+            catEl.innerText = card.label;
+            textEl.innerText = card.text;
+        }
+
+        function returnToMenu() {
+            document.getElementById('game-screen').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('home-screen').classList.remove('opacity-0', 'pointer-events-none');
+        }
+    </script>
+</body>
+</html>
